@@ -4,29 +4,38 @@ library(RISmed)
 library(tidyverse)
 
 # Use getwd() to check current working directory 
-# Set working directory
-#setwd("~/Desktop")
 
-# Import the data, TRUE for header
-data <- read.csv(file = 'genes.csv', TRUE, ",", stringsAsFactors = FALSE)
+# Import data from input.csv
+setwd("~/R-projects/Pubmed API search")
+# Leave a header for the column name Genes / Proteins
+data <- read.csv(file = 'input.csv', TRUE, ",", stringsAsFactors = FALSE)
 
-for (gene in 1:38){
-  search = paste(data[gene,1],"%26CFTR")
-  cat("\n\n\nGene",data[gene,1],"CFTR","\n\n")
-  res <- EUtilsSummary(search, type='esearch', db='pubmed')
-  cat("Results:",attr(res,'count'))
-  # If results > 0 print ids
+# For each gene / protein
+for (value in 1:nrow(data)){
+  
+  # Concatenate (paste) gene / protein + CFTR
+  searchKey = paste(data[value,1],"%26CFTR")
+  
+  # Print Query
+  cat(value," )",data[value,1],"CFTR","\n",file="outfile.txt",append=TRUE)
+  
+  # Query PubMed
+  res <- EUtilsSummary(searchKey, type='esearch', db='pubmed')
+  
+  # Print results
+  cat("Results:",attr(res,'count'),"\n\n",file="outfile.txt",append=TRUE)
+  
+  # If Count Results > 0 print Ids
   if(attr(res,'count')>0){
     
     # If results > 20, show only top 20
     if(length(attr(res,'PMID'))>20){
-      cat("\n\nLatest 20 Article Ids:",attr(res,'PMID')[1:20]) 
+      cat("Latest 20 Article Ids:",attr(res,'PMID')[1:20],"\n",file="outfile.txt",sep="\n",append=TRUE) 
       
     } 
-    # else show all
+    # Else, if results < 20 show all
     else {
-      
-      cat("\n\nArticle Ids:",attr(res,'PMID')) 
+      cat("Article Ids:",attr(res,'PMID'),"\n",file="outfile.txt",sep="\n",append=TRUE) 
     }
   }
   
